@@ -160,6 +160,12 @@
       const box = el.closest('.nm') || el, base = parseFloat(getComputedStyle(el).fontSize);
       for (let k = 0.95; box.scrollWidth > box.clientWidth && k >= 0.6; k -= 0.05) el.style.fontSize = base * k + 'px';
     });
+    // a wide score (153.38 on an iPad) gets narrower letters, not smaller ones, so every card's score keeps its height
+    root.querySelectorAll('.th .sc').forEach(el => {
+      el.style.fontStretch = '';
+      const box = el.parentElement;
+      for (let w = 105; box.scrollWidth > box.clientWidth && w >= 65; w -= 10) el.style.fontStretch = w + '%';
+    });
   }
   // a broken headshot or logo becomes initials
   document.addEventListener('error', e => {

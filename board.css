@@ -39,12 +39,12 @@ html, body { margin: 0; height: 100%; background: var(--page); color: var(--text
 .card.glow.k-play { --g: var(--gain); } .card.glow.k-bad { --g: var(--red); }
 
 .side { display: flex; flex-direction: column; gap: calc(var(--u) * 8); min-width: 0; min-height: 0; overflow: hidden; }
-.th { display: grid; grid-template-columns: calc(var(--u) * 52) minmax(0, 1fr); grid-template-areas: "logo name" "logo score"; column-gap: calc(var(--u) * 12); align-items: center; }
-.th .logo { grid-area: logo; width: calc(var(--u) * 52); height: calc(var(--u) * 52); border-radius: 50%; object-fit: cover; background: var(--chip);
+.th { display: grid; grid-template-columns: calc(var(--u) * 52) minmax(0, 1fr); grid-template-areas: "name name" "logo score"; grid-template-rows: calc(var(--u) * 60) auto; column-gap: calc(var(--u) * 12); row-gap: calc(var(--u) * 4); align-items: center; }   /* every card's logo and score line up */
+.th .logo { grid-area: logo; align-self: start; width: calc(var(--u) * 52); height: calc(var(--u) * 52); border-radius: 50%; object-fit: cover; background: var(--chip);
   display: grid; place-items: center; font-size: calc(var(--u) * 20); font-weight: 900; }
-.th .tn { grid-area: name; font-size: calc(var(--u) * 26); font-weight: 800; font-stretch: 85%; line-height: 1.15; overflow: hidden;
+.th .tn { grid-area: name; align-self: end; font-size: calc(var(--u) * 26); font-weight: 800; font-stretch: 85%; line-height: 1.15; overflow: hidden;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; }   /* long team names take two lines */
-.th .scl { grid-area: score; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: calc(var(--u) * 10); min-width: 0; }   /* the projection drops below a wide score */
+.th .scl { grid-area: score; display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }   /* PROJ (or Won / Lost) always under the score: every card's rows start at the same height */
 .th .sc { font-size: calc(var(--u) * 54); font-weight: 900; font-stretch: 115%; line-height: 1; }
 .side.lead .sc { color: var(--cyan); }
 .th .pj { font-size: calc(var(--u) * 20); color: var(--mute); white-space: nowrap; }
@@ -88,6 +88,7 @@ html, body { margin: 0; height: 100%; background: var(--page); color: var(--text
 .side.lost .sc { color: var(--mute); }
 .res { display: inline-flex; align-items: center; gap: calc(var(--u) * 6); font-size: calc(var(--u) * 24); font-weight: 900; white-space: nowrap; }
 .res svg { width: calc(var(--u) * 24); height: calc(var(--u) * 24); fill: var(--gold); }
+.th .pj, .res { line-height: calc(var(--u) * 26); }     /* same height either way, so the rows don't shift */
 .res.won { color: var(--cyan); } .res.lost { color: var(--red); } .res.tie { color: var(--mute); }
 
 /* ---------- 4:3 and 16:10 screens (iPad): the same columns, sized by the width (the height has room to spare) ---------- */
