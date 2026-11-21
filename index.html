@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#08091b">
+<title>League Board</title>
+<link rel="stylesheet" href="board.css">
+</head>
+<body>
+<div id="app">
+  <header class="bar"></header>
+  <div class="banner" aria-live="polite"></div>
+  <main class="cards"></main>
+  <button class="gear" type="button" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.3 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg></button>
+  <div class="setup" hidden></div>
+</div>
+<script src="src/logic.js"></script>
+<script src="src/data.js"></script>
+<script src="src/engine.js"></script>
+<script src="src/league.js"></script>
+<script>if (/(^|[?&])demo/.test(location.search.slice(1))) document.write('<script src="demo.js"><\/script>');   // ?demo: a scripted league</script>
+<script src="board.js"></script>
+</body>
+</html>
