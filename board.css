@@ -115,9 +115,10 @@ html, body { margin: 0; height: 100%; background: var(--page); color: var(--text
 .banner .nb { white-space: nowrap; }
 
 /* ---------- settings ---------- */
-.gear { position: fixed; right: var(--gap); bottom: var(--gap); width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--chip); color: #fff;
+.gear { position: fixed; right: var(--gap); bottom: var(--gap); width: 56px; height: 56px; border-radius: 10px; border: 0; background: rgba(10, 15, 32, .85); color: #fff;
   cursor: pointer; opacity: 0; transition: opacity .3s; z-index: 6; display: grid; place-items: center; }
-.gear svg { width: 28px; height: 28px; fill: currentColor; }
+.gear svg { width: 30px; height: 30px; fill: currentColor; }
+.gear:hover { background: var(--chip); }
 .gear.show, .gear:focus-visible { opacity: 1; }
 .gear:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
 .setup { position: fixed; inset: 0; background: rgba(8, 9, 27, .75); display: flex; align-items: center; justify-content: center; z-index: 7; }

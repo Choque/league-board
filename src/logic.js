@@ -133,6 +133,16 @@
     return Math.round(100 * Math.min(0.99, Math.max(0.01, p)));
   };
 
+  // Full-screen banners the settings can switch off. Off, a play shows as a small pop-up in the box instead (the points still
+  // show); a final result has no small form, so it doesn't show. The old "Defense play pop-ups: Off" carries over as def off.
+  FB.BANNERS = [['td', 'Touchdown'], ['big', 'Big play'], ['fg', 'Field goal'], ['def', 'Defense'], ['final', 'You won / lost']];
+  FB.bannersOff = s => s.bannersOff || (s.defPops === false ? ['def'] : []);
+  FB.forBanner = function (m, s) {
+    const key = m.kind === 'won' || m.kind === 'lost' ? 'final' : m.kind;
+    if (!FB.bannersOff(s).includes(key)) return m;
+    return key === 'final' ? null : Object.assign({}, m, { kind: m.value < 0 ? 'bad' : 'play', word: undefined });
+  };
+
   /* ---------- plays ---------- */
   const SUFFIX = /\s+(jr\.?|sr\.?|ii|iii|iv|v)$/i;
   const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
