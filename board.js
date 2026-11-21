@@ -12,6 +12,7 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const f2 = FB.f2, signed = n => (n < 0 ? '−' : '+') + f2(Math.abs(n));
   const shortName = r => r.pos === 'DEF' ? (r.last || r.team) : (FB.lastName({ l: r.last }) || r.team);
+  const TROPHY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm-1 4v1a2 2 0 0 0 1 1.7V7H6zm11 0v2.7A2 2 0 0 0 18 8V7h-1z"/></svg>';
   const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>';
   const ROWS = 5;      // rows per team
   const ini = s => String(s || '').split(/\s+/).map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
@@ -45,7 +46,7 @@
   /* ---------- state ---------- */
   let hold = new FB.Hold(), view = null, err = null, fatal = null, queue = [], cur = null, curT = null;
   let rowPage = 0, cardPage = 0, wake = null;
-  const deltas = {}, starred = {}, glow = {};    // keys "roster:player" / matchup id -> { v, until } / until / { kind, until }
+  const deltas = {}, starred = {}, glow = {}, testFin = {};    // keys "roster:player" / matchup id -> { v, until } / until / { kind, until }
 
   const engine = new (FB.BoardDemo || FB.LeagueEngine)({
     view: v => (view ? hold.pushState({ view: v }, v.at) : setView(v)),     // the first view right away, the rest after the delay
@@ -107,18 +108,24 @@
       `<span class="nm">${star && d == null ? STAR : ''}<span>${esc(shortName(r))}</span></span>${tags}` +     // the row's gold tint stays; the star makes room for the chip
       (d != null ? `<span class="dl num${d < 0 ? ' neg' : ''}">${signed(d)}</span>` : '') + `<span class="pt num">${f2(r.pts)}</span></div>`;
   }
-  function team(t, side, lead, now) {
+  // res: 'won' / 'lost' / 'tie' once the matchup is over, else null
+  function team(t, side, lead, now, res) {
     const starSet = new Set(Object.keys(starred).filter(k => starred[k] > now && k.startsWith(t.roster + ':')).map(k => k.slice(k.indexOf(':') + 1)));
-    const pg = FB.boardRows(t.rows, ROWS, rowPage, starSet);
+    const over = res || (t.toPlay === 0 && t.done > 0 && !t.rows.some(r => r.live));     // everyone played: their best three instead of nobody
+    const shown = over ? FB.topRows(t.rows, 3) : FB.boardRows(t.rows, ROWS, rowPage, starSet).shown;
     const logo = t.logo ? `<img class="logo" src="${esc(t.logo)}" alt="" data-ini="${esc(ini(t.name))}">` : `<span class="logo ini">${esc(ini(t.name))}</span>`;
-    return `<div class="side ${side}${lead ? ' lead' : ''}"><div class="th">${logo}<span class="tn">${esc(t.name)}</span>` +
-      `<span class="scl"><span class="sc num">${f2(t.score)}</span><span class="pj">PROJ ${f2(t.proj)}</span></span></div>` +
-      `<div class="rows">${pg.shown.map(r => row(t, r, now)).join('') || '<div class="none">Nobody playing now</div>'}</div>` +
-      `<div class="left">${t.toPlay} to play · ${t.done} done</div></div>`;
+    const tail = res ? `<span class="res ${res}">${res === 'won' ? TROPHY + 'Won' : res === 'lost' ? 'Lost' : 'Tie'}</span>` : `<span class="pj">PROJ ${f2(t.proj)}</span>`;
+    return `<div class="side ${side}${lead ? ' lead' : ''}${res ? ' ' + res : ''}"><div class="th">${logo}<span class="tn">${esc(t.name)}</span>` +
+      `<span class="scl"><span class="sc num">${f2(t.score)}</span>${tail}</span></div>` +
+      `<div class="rows">${shown.map(r => row(t, r, now)).join('') || '<div class="none">Nobody playing now</div>'}</div>` +
+      `<div class="left">${res ? `${t.done || t.rows.length} played` : `${t.toPlay} to play · ${t.done} done`}</div></div>`;
   }
   function card(m, now) {
     const g = glow[m.id] && glow[m.id].until > now ? glow[m.id].kind : null;
     const lead = m.a.score === m.b.score ? null : m.a.score > m.b.score ? 'a' : 'b';
+    const fin = FB.isFinal(m) || testFin[m.id] > now, res = x => (!fin ? null : !lead ? 'tie' : lead === x ? 'won' : 'lost');
+    if (fin) return `<section class="card fin${g ? ' glow k-' + g : ''}">` + team(m.a, 'a', lead === 'a', now, res('a')) +
+      `<div class="win fin"><i></i><span>Final</span><i></i></div>` + team(m.b, 'b', lead === 'b', now, res('b')) + '</section>';
     return `<section class="card${g ? ' glow k-' + g : ''}">` + team(m.a, 'a', lead === 'a', now) +
       `<div class="win"><span class="${m.pctA > 50 ? 'lead' : ''}">${m.pctA}%</span><span class="wb">` +
       `<i class="${m.pctA > 50 ? 'lead' : ''}" style="width:${m.pctA}%"></i><i class="${m.pctA < 50 ? 'lead' : ''}" style="width:${100 - m.pctA}%"></i></span>` +
@@ -178,6 +185,12 @@
       matchup: { id: m.id, a: { roster: m.a.roster, name: m.a.name, score: side === 'a' ? score : m.a.score },
         b: { roster: m.b.roster, name: m.b.name, score: side === 'b' ? score : m.b.score }, before: { [side]: t.score, [other]: m[other].score } } });
   }
+  function testFinal() {      // one matchup looks finished for 20 s
+    const ms = matchups();
+    if (!ms.length) return;
+    testFin[ms[Math.floor(Math.random() * ms.length)].id] = Date.now() + 20000;
+    render();
+  }
   function drawSetup() {
     const p = $('.setup'), l = league();
     if (p.hidden) return;
@@ -193,7 +206,7 @@
       `<section><h3>Position tags</h3><div class="line">${[[true, 'Show'], [false, 'Hide']].map(([v, t]) =>
         `<button data-pos="${v}" aria-pressed="${s.pos === v}"${s.pos === v ? ' class="on"' : ''}>${t}</button>`).join('')}</div>` +
       `<p class="note">QB, RB, WR on the player photos.</p></section>` +
-      `<section><h3>Show a test</h3><div class="line">${[['td', 'Touchdown'], ['big', 'Big play'], ['play', 'Small play'], ['bad', 'Lost points']]
+      `<section><h3>Show a test</h3><div class="line">${[['td', 'Touchdown'], ['big', 'Big play'], ['play', 'Small play'], ['bad', 'Lost points'], ['fin', 'Final']]
         .map(([k, t]) => `<button data-test="${k}">${t}</button>`).join('')}</div></section>` +
       `<section><h3>Screen</h3><div class="line"><button data-act="full">Full screen</button></div>` +
       (leagueId ? `<p class="note">Same board on another device (click to copy):</p><button class="link" data-act="copy" title="Copy the link">${esc(link())}</button>` : '') + `</section>` +
@@ -224,7 +237,7 @@
       if (go) go.call(el);
       return;
     }
-    if (d.test) { openSetup(false); return testMoment(d.test); }
+    if (d.test) { openSetup(false); return d.test === 'fin' ? testFinal() : testMoment(d.test); }
     if (d.pos) { s.pos = d.pos === 'true'; save(); posTags(); drawSetup(); }
     if (d.step) { s.delay = Math.max(0, Math.min(600, s.delay + +d.step)); save(); delayToUrl(); drawSetup(); drawBar(); }
     if (d.mu) {

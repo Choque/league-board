@@ -61,6 +61,10 @@
     }
   };
 
+  // A matchup is over once neither team has anyone to play or on; no game info at all (done 0) never counts as over
+  FB.isFinal = m => [m.a, m.b].every(t => t.toPlay === 0 && t.done > 0 && !t.rows.some(r => r.live));
+  FB.topRows = (rows, n) => rows.slice().sort((a, b) => b.pts - a.pts).slice(0, n);
+
   // A card's rows for one team: on the field, then who scored in the last minute, then the rest of the live players by
   // points; nobody else (the "to play · done" line covers them). Field and starred stay put, the rest pages evenly.
   FB.boardRows = function (rows, max, page, starred) {

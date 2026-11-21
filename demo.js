@@ -1,6 +1,6 @@
 // ?demo: scripted plays for checking the board without a live game. With ?demo&league=<id> it loads that league's real
 // matchups, teams and starters from Sleeper once, then scripts plays on top; plain ?demo uses made-up data (no network).
-// A view every 5 s and a scoring play every ~9 s: touchdown, big play, small play, defense, lost points.
+// A view every 5 s and a scoring play every ~9 s: touchdown, big play, small play, defense, lost points. The last matchup is finished.
 (function (FB) {
   'use strict';
   // made-up teams: [name, projected], pairs in order, and team a's win %
@@ -26,6 +26,9 @@
       this.pct = real ? real.matchups.map(m => m.pctA) : PCT;
       this.ids = real ? real.matchups.map(m => m.id) : null;     // keep Sleeper's matchup numbers, so ?matchups= works in the demo too
       this.teams = real ? this.fromLeague(real) : this.madeUp();
+      // the last pair has finished: everyone played (made-up points where Sleeper has none yet), no more plays for them
+      this.teams.slice(-2).forEach(t => { t.over = true; t.rows.forEach(r => Object.assign(r, { live: false, field: false, rz: false, game: 'Final',
+        pts: r.pts || Math.round((2 + Math.random() * 22) * 100) / 100 })); });
       this.teams.forEach(t => { t.start = this.score(t); });
       this.emit();
       clearInterval(this.t);
@@ -61,7 +64,7 @@
       const matchups = Array.from({ length: this.teams.length / 2 }, (_, i) => {
         const a = this.teams[i * 2], b = this.teams[i * 2 + 1], team = t => ({ roster: t.roster, name: t.name, logo: t.logo, score: this.score(t),
           proj: Math.round((t.proj + this.score(t) - t.start) * 100) / 100, rows: t.rows.map(r => Object.assign({}, r)),
-          toPlay: t.rows.filter(r => !r.live).length, done: 0 });
+          toPlay: t.over ? 0 : t.rows.filter(r => !r.live).length, done: t.over ? t.rows.length : 0 });
         const A = team(a), B = team(b);
         const swing = (A.score - a.start) - (B.score - b.start);     // points gained since the start move the win % off Sleeper's
         return { id: this.ids ? this.ids[i] : i + 1, a: A, b: B, pctA: Math.max(1, Math.min(99, Math.round(this.pct[i] + swing))) };
@@ -73,7 +76,7 @@
       this.n++;
       if (this.n % 2) return this.emit();     // every other tick just a view (the field flips)
       const [kind, value, word, line] = KINDS[(this.n / 2 - 1) % KINDS.length];
-      const t = this.teams[Math.floor(Math.random() * this.teams.length)], r = t.rows.find(x => x.live) || t.rows[0], at = Date.now();
+      const open = this.teams.filter(x => !x.over), t = open[Math.floor(Math.random() * open.length)], r = t.rows.find(x => x.live) || t.rows[0], at = Date.now();
       const before = this.score(t);
       r.pts = Math.round((r.pts + value) * 100) / 100;
       t.rows.forEach(x => { if (x.live) x.field = !x.field; });
