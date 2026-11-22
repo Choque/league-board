@@ -164,7 +164,11 @@
       return k[k.length - 1] || null;
     }
     if (delta >= 4) { const s = his.filter(x => x.scoring); if (s.length) return s[s.length - 1]; }
-    return his[his.length - 1] || null;
+    const last = his[his.length - 1] || null, yds = last ? (last.yds != null ? last.yds : FB.yards(last.text)) || 0 : 0;
+    // a TD-sized jump his newest play can't explain: ESPN hasn't posted the score yet, so no play (the size then says TD)
+    // shortcut: a play without a score is taken as worth at most yards/10 + 4 (catch, bonuses); upgrade with the league's scoring
+    if (last && delta >= 6 && yds / 10 + 4 < delta) return null;
+    return last;
   };
   function role(p, text, type) {
     const t = (text || '').toLowerCase(), at = t.search(new RegExp(reEsc(FB.lastName(p).toLowerCase())));
