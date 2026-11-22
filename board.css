@@ -51,11 +51,11 @@ html, body { margin: 0; height: 100%; background: var(--page); color: var(--text
 
 .rows { display: flex; flex-direction: column; gap: calc(var(--u) * 6); min-height: 0; }
 .r { display: flex; align-items: center; gap: calc(var(--u) * 8); background: var(--ink); border-radius: calc(var(--u) * 10);
-  padding: calc(var(--u) * 5) calc(var(--u) * 10) calc(var(--u) * 5) calc(var(--u) * 6); min-width: 0; min-height: calc(var(--u) * 50); }
+  padding: calc(var(--u) * 5) calc(var(--u) * 10) calc(var(--u) * 5) calc(var(--u) * 6); min-width: 0; min-height: calc(var(--u) * 46); }   /* 5 rows leave room for the to-play line on a 16:9 screen */
 .r.on { box-shadow: inset calc(var(--u) * 5) 0 0 var(--gain); }
 .r.star { background: color-mix(in srgb, var(--gold) 18%, var(--ink)); }
 .r .ph { position: relative; flex: none; }
-.r .ph img, .r .ph .ini { width: calc(var(--u) * 40); height: calc(var(--u) * 40); border-radius: 50%; object-fit: cover; background: var(--chip);
+.r .ph img, .r .ph .ini { width: calc(var(--u) * 36); height: calc(var(--u) * 36); border-radius: 50%; object-fit: cover; background: var(--chip);
   display: grid; place-items: center; font-size: calc(var(--u) * 18); font-weight: 900; }
 .r .pos { position: absolute; left: 50%; bottom: calc(var(--u) * -6); transform: translateX(-50%); font-size: calc(var(--u) * 15); line-height: 1.2;
   font-weight: 900; color: var(--page); background: var(--idp); border-radius: calc(var(--u) * 4); padding: 0 calc(var(--u) * 4); }
@@ -74,7 +74,7 @@ html, body { margin: 0; height: 100%; background: var(--page); color: var(--text
 .r .dl.neg { color: var(--red); background: color-mix(in srgb, var(--red) 16%, transparent); }
 .r .pt { flex: none; font-size: calc(var(--u) * 28); font-weight: 900; font-stretch: 110%; }
 .none { font-size: calc(var(--u) * 20); color: var(--mute); padding: calc(var(--u) * 6) 0; }
-.left { font-size: calc(var(--u) * 20); color: var(--mute); margin-top: auto; }
+.left { font-size: calc(var(--u) * 20); color: var(--mute); margin-top: auto; padding-top: calc(var(--u) * 6); }
 
 /* win %: the leader's share in cyan */
 .win { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: calc(var(--u) * 10); font-size: calc(var(--u) * 22); font-weight: 900; color: var(--mute); }
