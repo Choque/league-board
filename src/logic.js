@@ -95,7 +95,7 @@
 
   // Sleeper's live projection, as its web app computes it: the pre-game projection slides toward the player's pace as the
   // clock runs. f = share of his game left (1 before kickoff, 0 when final). Matches Sleeper to the hundredth.
-  // dst: a team defense, whose pace Sleeper damps (matchup screen and win % alike: its app showed 57 % where undamped gave 51)
+  // dst: a team defense, whose pace Sleeper damps on its matchup screen (but not in its win %)
   FB.liveProj = function (pts, proj, f, dst) {
     if (f <= 0 && pts < 0) return pts;
     const pace = (pts + pts / (60 - 60 * f || 1) * 60 * f * f) * (dst ? 0.25 + 0.05 * f : 1);   // Sleeper's pace term, its extra f included
@@ -103,18 +103,19 @@
     return h + (1 - f) * (Math.max(pace, pts) - h);
   };
 
-  // One side of a matchup: points so far, live projected total (as Sleeper shows it and counts it for win %),
+  // One side of a matchup: points so far, live projected total (as Sleeper shows it, and as its win % counts it),
   // how much game time is left in total (0 = all done)
   FB.side = function (starters, pts, proj, gi, players) {
-    let live = 0, total = 0, left = 0;
+    let live = 0, total = 0, forWin = 0, left = 0;
     (starters || []).forEach((id, i) => {
       if (!id || id === '0') return;
       const v = (pts && pts[i]) || 0, p = players[id], g = p ? FB.gameOf(p, gi) : null, f = g ? g.left : 0, pr = (proj && proj[id]) || 0;
       live += v;
       total += FB.liveProj(v, pr, f, /^[a-z]+$/i.test(id));
+      forWin += FB.liveProj(v, pr, f);
       left += f;
     });
-    return { live, total, left };
+    return { live, total, forWin, left };
   };
 
   function phi(z) { // standard normal CDF (Abramowitz-Stegun 7.1.26)
@@ -126,9 +127,9 @@
   // wider the more of that total is still to come; win % = chance yours ends higher, held to 1–99 while games are left
   const spread = (now, proj) => { const n = 1 + 10 * (1 - now / proj), v = (now - proj) ** 2 / n; return n > 0 && v > 0 && isFinite(v) ? v : 0.1; };
   FB.winPct = function (my, their) {
-    const done = x => x.live.toFixed(2) === x.total.toFixed(2);
+    const t = x => x.forWin != null ? x.forWin : x.total, done = x => x.live.toFixed(2) === t(x).toFixed(2);
     if (done(my) && done(their)) { const d = +my.live.toFixed(2) - +their.live.toFixed(2); return d > 0 ? 100 : d < 0 ? 0 : 50; }
-    const p = phi((my.total - their.total) / Math.sqrt(spread(my.live, my.total) + spread(their.live, their.total)));
+    const p = phi((t(my) - t(their)) / Math.sqrt(spread(my.live, t(my)) + spread(their.live, t(their))));
     return Math.round(100 * Math.min(0.99, Math.max(0.01, p)));
   };
 
