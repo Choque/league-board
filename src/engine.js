@@ -79,11 +79,16 @@
         });
         this.projAt = now;
       }
-      if (week !== this.statsWeek) { this.stats = {}; this.statsWeek = week; }
+      if (week !== this.statsWeek) { this.stats = {}; this.statsAt = {}; this.statsWeek = week; }
       // while games are on, also Sleeper's live stat lines (no games last poll: skip it; a failed fetch: league points only)
       const [sb, st, ...mus] = await Promise.all([FB.api.scoreboard(), this.anyLive === false ? null : FB.api.stats(season, week).catch(() => null),
         ...this.meta.map(m => FB.api.matchups(m.id, week))]);
-      (st || []).forEach(r => { this.stats[r.player_id] = r.stats || {}; });
+      // Sleeper's cache sometimes serves an older copy for a poll: a row older than the one we have would take points back
+      (st || []).forEach(r => {
+        if (r.updated_at && r.updated_at < (this.statsAt[r.player_id] || 0)) return;
+        this.stats[r.player_id] = r.stats || {};
+        this.statsAt[r.player_id] = r.updated_at || 0;
+      });
       const gi = FB.games(sb);
       this.anyLive = Object.values(gi).some(g => g.state === 'in');
       const leagues = this.meta.map((m, i) => this.league(m, mus[i] || [], gi, week)).filter(Boolean);
