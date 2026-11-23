@@ -114,7 +114,7 @@
     const over = res || (t.toPlay === 0 && t.done > 0 && !t.rows.some(r => r.live));     // everyone played: their best three instead of nobody
     const shown = over ? FB.topRows(t.rows, 3) : FB.boardRows(t.rows, ROWS, rowPage, starSet).shown;
     const logo = t.logo ? `<img class="logo" src="${esc(t.logo)}" alt="" data-ini="${esc(ini(t.name))}">` : `<span class="logo ini">${esc(ini(t.name))}</span>`;
-    const tail = res ? `<span class="res ${res}">${res === 'won' ? TROPHY + 'Won' : res === 'lost' ? 'Lost' : 'Tie'}</span>` : `<span class="pj">PROJ ${f2(t.proj)}</span>`;
+    const tail = res ? `<span class="res ${res}">${res === 'won' ? TROPHY + 'Won' : res === 'lost' ? 'Lost' : 'Tie'}</span>` : `<span class="pj">${over ? 'FINAL' : `PROJ ${f2(t.proj)}`}</span>`;   // nobody left to play: the projection is just the score again
     return `<div class="side ${side}${lead ? ' lead' : ''}${res ? ' ' + res : ''}"><div class="th">${logo}<span class="tn">${esc(t.name)}</span>` +
       `<span class="scl"><span class="sc num">${f2(t.score)}</span>${tail}</span></div>` +
       `<div class="rows">${shown.map(r => row(t, r, now)).join('') || '<div class="none">Nobody playing now</div>'}</div>` +
