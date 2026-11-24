@@ -35,7 +35,9 @@
     projections: (season, week) => get(`${S}/projections/nfl/${season}/${week}?season_type=regular&${POS}`),
     // the same rows with live stat lines; Sleeper refreshes it every few seconds, the league points only about once a minute
     stats: (season, week) => get(`${S}/stats/nfl/${season}/${week}?season_type=regular&${POS}`),
-    scoreboard: () => get(E + '/scoreboard'),
+    // pinned to Sleeper's week: ESPN's own "current week" changes on a different day, and its finished games
+    // would make the other week's starters look done
+    scoreboard: week => get(E + '/scoreboard' + (week ? '?seasontype=2&week=' + week : '')),
     summary: id => get(E + '/summary?event=' + id),
     players: () => inExt() ? ask({ type: 'players' }) : get(S + '/v1/players/nfl').then(slimPlayers),
   };

@@ -68,9 +68,11 @@
       if (!this.meta || !this.meta.length) return false;
       const now = Date.now();
       if (!this.nfl || now - this.nflAt > SLOW_MS) { this.nfl = await FB.api.state(); this.nflAt = now; }
-      const season = this.nfl.season, week = this.nfl.week;
+      // display_week: the week Sleeper's app shows. `week` moves on a day or two earlier (Tuesday), before any of its games
+      const season = this.nfl.season, week = this.nfl.display_week || this.nfl.week;
       if (!this.players) this.players = await FB.api.players();
-      if (!this.proj || now - this.projAt > SLOW_MS) {
+      if (!this.proj || now - this.projAt > SLOW_MS || this.projWeek !== week) {
+        this.projWeek = week;
         this.proj = {};
         this.inj = {};
         (await FB.api.projections(season, week) || []).forEach(r => {
@@ -81,7 +83,7 @@
       }
       if (week !== this.statsWeek) { this.stats = {}; this.statsAt = {}; this.statsWeek = week; }
       // while games are on, also Sleeper's live stat lines (no games last poll: skip it; a failed fetch: league points only)
-      const [sb, st, ...mus] = await Promise.all([FB.api.scoreboard(), this.anyLive === false ? null : FB.api.stats(season, week).catch(() => null),
+      const [sb, st, ...mus] = await Promise.all([FB.api.scoreboard(week), this.anyLive === false ? null : FB.api.stats(season, week).catch(() => null),
         ...this.meta.map(m => FB.api.matchups(m.id, week))]);
       // Sleeper's cache sometimes serves an older copy for a poll: a row older than the one we have would take points back
       (st || []).forEach(r => {
