@@ -97,7 +97,7 @@
     const live = l ? (l.liveGames ? `${l.liveGames} game${l.liveGames > 1 ? 's' : ''} live` : 'No games live') : '';
     $('.bar').innerHTML = `<span class="lg">${esc(l ? l.label : 'League Board')}</span>` +
       (l ? `<span class="wk">Week ${esc(l.week)}</span><span class="live${l.liveGames ? ' on' : ''}">${esc(live)}</span>` : '') +
-      (err ? `<span class="err">No connection</span>` : '') + (s.delay ? `<span class="dly">−${s.delay}s</span>` : '');
+      (err ? `<span class="err">No connection</span>` : '') + (s.delay ? `<span class="dly">${s.delay} s delay</span>` : '');
   }
   function row(t, r, now) {
     const k = t.roster + ':' + r.id, d = deltas[k] && deltas[k].until > now ? deltas[k].v : null, star = starred[k] > now;

@@ -21,7 +21,7 @@ html, body { margin: 0; height: 100%; background: var(--page); color: var(--text
 .bar .live.on { color: var(--gain); }
 .bar .live.on::before { content: ''; width: calc(var(--u) * 14); height: calc(var(--u) * 14); border-radius: 50%; background: var(--gain); }
 .bar .err { color: var(--page); background: var(--red); border-radius: calc(var(--u) * 8); padding: 0 calc(var(--u) * 12); font-size: calc(var(--u) * 24); }
-.bar .dly { margin-left: auto; color: var(--mute); font-size: calc(var(--u) * 24); border: calc(var(--u) * 2) solid var(--chip); border-radius: calc(var(--u) * 8); padding: 0 calc(var(--u) * 10); }
+.bar .dly { margin-left: auto; color: var(--mute); font-size: calc(var(--u) * 24); font-variant-numeric: tabular-nums; }
 
 /* ---------- the cards: one column per matchup on a 16:9 screen ---------- */
 .cards { flex: 1; min-height: 0; display: grid; gap: var(--gap); grid-template-columns: repeat(var(--cols, 5), minmax(0, 1fr)); }
@@ -125,7 +125,7 @@ html, body { margin: 0; height: 100%; background: var(--page); color: var(--text
 .setup[hidden] { display: none; }
 .panel { background: var(--card); border-radius: 18px; padding: 24px 28px; width: min(680px, 92vw); max-height: 90vh; overflow: auto; font-size: 18px; }
 .panel h2 { margin: 0 0 12px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
-.panel h3 { margin: 18px 0 8px; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; color: var(--mute); }
+.panel h3 { margin: 18px 0 8px; font-size: 15px; color: var(--mute); }
 .panel button { background: var(--chip); color: #fff; border: 0; border-radius: 10px; min-height: 44px; padding: 8px 14px; font: inherit; font-weight: 800; cursor: pointer; }
 .panel button:hover { background: #3f4462; }
 .panel button.on { background: var(--cyan); color: var(--page); }
